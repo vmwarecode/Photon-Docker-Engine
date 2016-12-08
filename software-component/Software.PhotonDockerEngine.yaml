@@ -1,0 +1,81 @@
+'@type': "SoftwareComponentType"
+createdDate: "2016-12-08T20:53:41.314Z"
+lastUpdated: "2016-12-08T20:55:54.248Z"
+id: "Software.PhotonDockerEngine"
+name: "Photon Docker Engine"
+description: "Configures the Docker engine on Photon OS and enables the remote API\
+  \ on TCP 2375 (insecure)."
+publishStatus: "PUBLISHED"
+publishStatusName: "Published"
+schema:
+  fields:
+  - id: "host"
+    label: "Container"
+    description: ""
+    dataType:
+      type: "ref"
+      componentTypeId: "com.vmware.csp.iaas.blueprint.service"
+      classId: "Infrastructure.Machine.Schema"
+      label: "Machine"
+    state:
+      dependencies: []
+      facets:
+      - type: "visible"
+        value:
+          type: "constantClause"
+          value:
+            type: "boolean"
+            value: false
+      - type: "mandatory"
+        value:
+          type: "constant"
+          value:
+            type: "boolean"
+            value: true
+      - type: "internal"
+        value:
+          type: "constantClause"
+          value:
+            type: "boolean"
+            value: true
+    isMultiValued: false
+containerFieldId: "host"
+lifecycleTasks:
+- createdDate: "2016-12-08T20:53:41.316Z"
+  lastUpdated: "2016-12-08T21:13:23.792Z"
+  script:
+    scriptContent: "echo 'Now starting Docker.'\nsystemctl start docker\ndocker version"
+    isRebootAfter: false
+    scriptTypeId: "Bash"
+  taskDescriptorRef:
+    id: "START"
+    label: "Start"
+- createdDate: "2016-12-08T20:53:41.315Z"
+  lastUpdated: "2016-12-08T21:13:23.792Z"
+  script:
+    scriptContent: "systemctl stop docker\necho 'Setting up Docker to listen on remote\
+      \ API.'\nmkdir /etc/systemd/system/docker.service.d\ntouch /etc/systemd/system/docker.service.d/docker.conf\n\
+      echo '[Service]' >> /etc/systemd/system/docker.service.d/docker.conf\necho 'ExecStart='\
+      \ >> /etc/systemd/system/docker.service.d/docker.conf\necho 'ExecStart=/usr/bin/dockerd\
+      \ -H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock' >> /etc/systemd/system/docker.service.d/docker.conf\n\
+      systemctl daemon-reload\necho 'Removing the Docker ID.'\nrm -f /etc/docker/key.json\n\
+      echo 'Setting firewall rules.'\necho '#Enables Docker remote API on port 2375\
+      \ (insecure)' >> /etc/systemd/scripts/iptables\necho 'iptables -A INPUT -p tcp\
+      \ --dport 2375 -j ACCEPT' >> /etc/systemd/scripts/iptables\nsystemctl restart\
+      \ iptables\necho 'Enabling Docker.'\nsystemctl enable docker"
+    isRebootAfter: false
+    scriptTypeId: "Bash"
+  taskDescriptorRef:
+    id: "CONFIGURE"
+    label: "Configure"
+- createdDate: "2016-12-08T20:53:41.316Z"
+  lastUpdated: "2016-12-08T21:13:23.792Z"
+  script:
+    scriptContent: "#Syncs the installed packages with those in the Photon repos.\n\
+      echo 'Syncing with the Photon public repos to update all packages.'\ntdnf distro-sync\
+      \ -y"
+    isRebootAfter: false
+    scriptTypeId: "Bash"
+  taskDescriptorRef:
+    id: "INSTALL"
+    label: "Install"

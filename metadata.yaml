@@ -1,0 +1,8 @@
+name: "auto-generated-pkg-0ebc962b-b044-446d-947a-9a93178bceb2"
+productVersion: "7.2.0-SNAPSHOT"
+data:
+- locator: "software-component/Software.PhotonDockerEngine.yaml"
+  name: "Photon Docker Engine"
+  description: "Configures the Docker engine on Photon OS and enables the remote API\
+    \ on TCP 2375 (insecure)."
+exportTime: "2016-12-08T21:30:10.681Z"

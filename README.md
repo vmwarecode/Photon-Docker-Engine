@@ -1,1 +1,0 @@
-# Photon-Docker-Engine
